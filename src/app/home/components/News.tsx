@@ -308,7 +308,7 @@ const News = () => {
                       </TableHeader>
                       <TableBody>
                         {news.map((item) => (
-                          <TableRow key={item.id}>
+                          <TableRow>
                             <TableCell className="font-medium">
                               {item.title}
                             </TableCell>

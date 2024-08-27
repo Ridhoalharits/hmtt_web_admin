@@ -7,8 +7,7 @@ import { getNews } from "./actions";
 import News from "./components/News";
 
 // import { Icons } from "@/components/icons";
-
-export async function Home() {
+const Page = async () => {
   const supabase = createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) {
@@ -21,6 +20,6 @@ export async function Home() {
       <News />
     </div>
   );
-}
+};
 
-export default Home;
+export default Page;
