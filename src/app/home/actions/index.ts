@@ -4,6 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 
 import { v4 as uuidv4 } from "uuid";
 
+interface Item {
+  id: string;
+  title: string;
+  isPublished: boolean;
+  createdAt: string; // Adjust the type if this is different
+}
+
 export async function signOut() {
   "use server";
   const supabase = createClient();

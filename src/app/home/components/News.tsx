@@ -88,12 +88,18 @@ const formSchema = z.object({
   img_url: z.string(),
 });
 
+interface Item {
+  id: string;
+  title: string;
+  isPublished: boolean;
+  createAt: string; // Adjust the type if this is different
+}
 const News = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  //   const [file, setFile] = useState<File>();
+  const [news, setNews] = useState<Item[]>([]);
+  const [media, setMedia] = useState("");
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -103,28 +109,25 @@ const News = () => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    newArticle(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    await newArticle(values);
     fetchdata();
-
     console.log(values);
-  }
-
-  const [news, setNews] = useState([]);
+  };
 
   const fetchdata = async () => {
     try {
-      const data: any = await getNews();
-
+      const data: Item[] = await getNews();
       setNews(data);
     } catch (error) {
       console.log(error);
     }
   };
-  const [media, setMedia] = useState("");
-  async function upload(e: any) {
-    let file = e.target.files[0];
+
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     const supabase = createClient();
     const identik = uuidv4();
 
@@ -134,52 +137,28 @@ const News = () => {
 
     if (data) {
       const imageUrl = `https://jkqjspqfaakifrkxfmcv.supabase.co/storage/v1/object/public/hmtt_img_storage/image/${identik}`;
-      form.setValue("img_url", imageUrl); // Set the img_url field in the form with the uploaded image URL
-      console.log(imageUrl);
+      form.setValue("img_url", imageUrl);
       setMedia(imageUrl);
-      return imageUrl;
-      //   getMedia();
-      //   console.log(media);
     } else {
       console.log(error);
     }
-  }
+  };
 
-  async function getMedia() {
-    const supabase = createClient();
-    const { data, error } = await supabase.storage
-      .from("hmtt_img_storage")
-      .list("image" + "/", {
-        limit: 10,
-        offset: 0,
-        sortBy: {
-          column: "name",
-          order: "asc",
-        },
-      });
-
-    if (data) {
-      //   setMedia(data);
-    } else {
-      console.log(71, error);
-    }
-  }
-
-  const handleDelete = async (news: any) => {
+  const handleDelete = async (news: Item) => {
     try {
       await deleteNews(news);
-      await fetchdata(); // Re-fetch data after updating
+      await fetchdata();
     } catch (error) {
       console.error("Error Deleting:", error);
     }
   };
 
-  const handlePublish = async (news: any) => {
+  const handlePublish = async (news: Item) => {
     try {
       await setToPublish(news);
-      await fetchdata(); // Re-fetch data after updating
+      await fetchdata();
     } catch (error) {
-      console.error("Error Deleting:", error);
+      console.error("Error Publishing:", error);
     }
   };
 
@@ -308,7 +287,7 @@ const News = () => {
                       </TableHeader>
                       <TableBody>
                         {news.map((item) => (
-                          <TableRow>
+                          <TableRow key={item.id}>
                             <TableCell className="font-medium">
                               {item.title}
                             </TableCell>
