@@ -1,6 +1,6 @@
+"use client";
 import React from "react";
 
-import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import hmtt from "../../icon/hmtt.png";
 import Image from "next/image";
@@ -37,10 +37,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
 
 import { cn } from "@/lib/utils";
 
 const Navbar = () => {
+  async function signOut() {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signOut();
+    if (error) console.log("Error signing out:", error.message);
+    // redirect("/login");
+  }
+
   return (
     <div>
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -62,25 +70,7 @@ const Navbar = () => {
             href="/news"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            News
-          </Link>
-          <Link
-            href="#"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Products
-          </Link>
-          <Link
-            href="#"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Customers
-          </Link>
-          <Link
-            href="#"
-            className="text-foreground transition-colors hover:text-foreground"
-          >
-            Settings
+            Laboratory
           </Link>
         </nav>
         <Sheet>
@@ -109,27 +99,6 @@ const Navbar = () => {
               >
                 Dashboard
               </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Orders
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Products
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Customers
-              </Link>
-              <Link href="#" className="hover:text-foreground">
-                Settings
-              </Link>
             </nav>
           </SheetContent>
         </Sheet>
@@ -155,9 +124,9 @@ const Navbar = () => {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

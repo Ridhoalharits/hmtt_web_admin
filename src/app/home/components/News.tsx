@@ -73,7 +73,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
-import { deleteNews, getNews, newArticle, setToPublish } from "../actions";
+import {
+  deleteNews,
+  getNews,
+  newArticle,
+  setToPublish,
+  setToUnpublish,
+} from "../actions";
 import { formatedTime } from "@/utils/formater";
 
 import { any, z } from "zod";
@@ -156,6 +162,15 @@ const News = () => {
   const handlePublish = async (news: Item) => {
     try {
       await setToPublish(news);
+      await fetchdata();
+    } catch (error) {
+      console.error("Error Publishing:", error);
+    }
+  };
+
+  const handleUnpublish = async (news: Item) => {
+    try {
+      await setToUnpublish(news);
       await fetchdata();
     } catch (error) {
       console.error("Error Publishing:", error);
@@ -315,11 +330,20 @@ const News = () => {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                  <DropdownMenuItem
-                                    onClick={() => handlePublish(item)}
-                                  >
-                                    Publish
-                                  </DropdownMenuItem>
+                                  {item.isPublished === false ? (
+                                    <DropdownMenuItem
+                                      onClick={() => handlePublish(item)}
+                                    >
+                                      Publish
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem
+                                      onClick={() => handleUnpublish(item)}
+                                    >
+                                      Unpublish
+                                    </DropdownMenuItem>
+                                  )}
+
                                   <DropdownMenuItem>Edit</DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={() => handleDelete(item)}

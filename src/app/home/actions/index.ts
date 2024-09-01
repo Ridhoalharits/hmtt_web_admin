@@ -11,8 +11,7 @@ interface Item {
   createdAt: string; // Adjust the type if this is different
 }
 
-export async function signOut() {
-  "use server";
+async function signOut() {
   const supabase = createClient();
   const { error } = await supabase.auth.signOut();
   if (error) console.log("Error signing out:", error.message);
@@ -44,7 +43,7 @@ export async function newArticle(article: any) {
       .select();
 
     if (data) {
-      console.log("Successfully delete data");
+      console.log("Successfully add new data");
     }
 
     if (error) console.log("Failed delete data");
@@ -59,11 +58,11 @@ export async function deleteNews(row: any) {
   try {
     let query = supabase
       .from("article")
-      .update({ isActive: false })
+      .update({ isActive: false, isPublished: false })
       .eq("news_id", row.news_id);
     const { data, error } = await query;
     if (data) {
-      console.log("Successfully delete data");
+      console.log("Successfully delete news");
     }
   } catch (error) {
     console.log("Error fetching News: ", error);
@@ -81,7 +80,25 @@ export async function setToPublish(row: any) {
       .eq("news_id", row.news_id);
     const { data, error } = await query;
     if (data) {
-      console.log("Successfully delete data");
+      console.log("Successfully publish news");
+    }
+  } catch (error) {
+    console.log("Error fetching News: ", error);
+    throw error;
+  }
+}
+
+export async function setToUnpublish(row: any) {
+  const supabase = createClient();
+
+  try {
+    let query = supabase
+      .from("article")
+      .update({ isPublished: false })
+      .eq("news_id", row.news_id);
+    const { data, error } = await query;
+    if (data) {
+      console.log("Successfully Unpublish data");
     }
   } catch (error) {
     console.log("Error fetching News: ", error);
