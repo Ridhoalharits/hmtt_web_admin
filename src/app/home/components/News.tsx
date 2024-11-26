@@ -79,6 +79,7 @@ import {
   newArticle,
   setToPublish,
   setToUnpublish,
+  updateNews,
 } from "../actions";
 import { formatedTime } from "@/utils/formater";
 
@@ -105,6 +106,12 @@ const News = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [news, setNews] = useState<Item[]>([]);
   const [media, setMedia] = useState("");
+  const [formData, setFormData] = useState({
+    title: "",
+    bodycopy: "",
+    img_url: "",
+  });
+  const [isEditing, setIsEditing] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -116,9 +123,17 @@ const News = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await newArticle(values);
+    if (isEditing) {
+      // Edit existing news
+      await updateNews(values); // Assuming `updateNews` is your update action
+    } else {
+      // Create new news
+      await newArticle(values);
+    }
+
     fetchdata();
-    console.log(values);
+    resetForm(); // Reset form after submission
+    setIsDialogOpen(false);
   };
 
   const fetchdata = async () => {
@@ -176,6 +191,23 @@ const News = () => {
       console.error("Error Publishing:", error);
     }
   };
+  const handleEdit = (item: any) => {
+    setIsEditing(true);
+    setFormData(item); // Set form data
+    setIsDialogOpen(true);
+
+    // Set form fields
+    form.setValue("title", item.title);
+    form.setValue("bodycopy", item.bodycopy);
+    form.setValue("img_url", item.img_url);
+    setMedia(item.img_url);
+  };
+
+  const resetForm = () => {
+    setFormData({ title: "", bodycopy: "", img_url: "" });
+    setIsEditing(false);
+    setMedia("");
+  };
 
   useEffect(() => {
     fetchdata();
@@ -217,11 +249,12 @@ const News = () => {
                             <FormField
                               control={form.control}
                               name="title"
+                              defaultValue={formData.title}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Title</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="shadcn" {...field} />
+                                    <Input placeholder="title" {...field} />
                                   </FormControl>
 
                                   <FormMessage />
@@ -231,6 +264,7 @@ const News = () => {
                             <FormField
                               control={form.control}
                               name="bodycopy"
+                              defaultValue={formData.bodycopy}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Bodycopy</FormLabel>
@@ -245,6 +279,7 @@ const News = () => {
                             <Input
                               type="file"
                               accept="image/*"
+                              // defaultValue={formData.img_url}
                               onChange={(e) => {
                                 upload(e);
                               }}
@@ -259,6 +294,7 @@ const News = () => {
                             </div>
 
                             <Button
+                              name="submit"
                               type="submit"
                               onClick={() => setIsDialogOpen(false)}
                             >
@@ -344,7 +380,11 @@ const News = () => {
                                     </DropdownMenuItem>
                                   )}
 
-                                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEdit(item)}
+                                  >
+                                    Edit
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={() => handleDelete(item)}
                                   >
@@ -362,6 +402,7 @@ const News = () => {
                     <div className="text-xs text-muted-foreground">
                       Showing <strong>1-10</strong> of <strong>32</strong>{" "}
                       products
+                      <p>{news.length}</p>
                     </div>
                   </CardFooter>
                 </Card>

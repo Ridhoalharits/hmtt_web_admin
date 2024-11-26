@@ -2,17 +2,6 @@
 import React from "react";
 
 import { redirect } from "next/navigation";
-import hmtt from "../../icon/hmtt.png";
-import Image from "next/image";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
 
 import { CircleUser, Menu, Package2, Search } from "lucide-react";
 
@@ -39,14 +28,17 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 
-import { cn } from "@/lib/utils";
-
 const Navbar = () => {
   async function signOut() {
     const supabase = createClient();
     const { error } = await supabase.auth.signOut();
-    if (error) console.log("Error signing out:", error.message);
-    // redirect("/login");
+
+    if (error) {
+      console.log("Error signing out:", error.message);
+    } else {
+      // Redirect only if there is no error
+      redirect("/login");
+    }
   }
 
   return (
@@ -67,7 +59,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            href="/news"
+            href="/lab"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Laboratory
